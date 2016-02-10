@@ -5,6 +5,15 @@ import urllib
 
 app = Flask(__name__)
 
+#Function for clearly printing a dictionary's values
+def dictPrint(dictIn):
+	try: 
+		for attribute, value in dictIn.items():
+			print('{} : {}'.format(attribute, value))
+		print('\n')
+	except:
+		f1.write('\n =============================== \n PRINTING ISSUE FOR UNICODE \n =============================== \n')
+
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
@@ -22,15 +31,38 @@ def get_url_param():
 
 #This function needs to consider all of the options for timelines.
 def parseTimeline(url):
+	decodedURL = urllib.unquote(url).decode('utf8')
 	timelineURL = urlparse(urllib.unquote(url).decode('utf8'))
 	if("timeline" in timelineURL.path):
-		print(parse_qs(timelineURL.query))
+
+		#Set some defaults for height and width.
+		width = '600'
+		height = '600'
+
+		params = parse_qs(timelineURL.query)
+		dictPrint(params)
+
+		#Find the height and width fields to set for iframe html
+		for key, value in params.iteritems():
+			if(key == 'width'):
+				width = value[0]
+			elif(key == 'height'):
+				height = value[0]
+
+		print(width)
+		print(height)
+		html = developIframe(decodedURL, width, height)
+		print(html)
+
 
 	else:
 		print("It's an error!")
 
 	return timelineURL
 
+def developIframe(url, width, height):
+	html = "<iframe src='" + url + "' width='" + width + "' height='" + height + "' frameborder='0'></iframe>"
+	return html
 
 def structureJSON(html):
 
@@ -78,4 +110,5 @@ if __name__ == '__main__':
 
 # thumbnail_height (optional) : The height of the optional thumbnail. If this 
 # parameter is present, thumbnail_url and thumbnail_width must also be present.
+
 
