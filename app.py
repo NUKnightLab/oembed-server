@@ -24,7 +24,7 @@ def get_url_param():
 	if len(urlChunks) <= 2:
 		url = urlChunks[1]
 		result = parseTimeline(url)
-		return jsonify({'result': result})
+		return jsonify(result)
 	else:
 		return jsonify({'result': "This is an erroneous request."})
 
@@ -36,8 +36,8 @@ def parseTimeline(url):
 	if("timeline" in timelineURL.path):
 
 		#Set some defaults for height and width.
-		width = '600'
-		height = '600'
+		width = 600
+		height = 600
 
 		params = parse_qs(timelineURL.query)
 		dictPrint(params)
@@ -45,15 +45,15 @@ def parseTimeline(url):
 		#Find the height and width fields to set for iframe html
 		for key, value in params.iteritems():
 			if(key == 'width'):
-				width = value[0]
+				width = int(value[0])
 			elif(key == 'height'):
-				height = value[0]
+				height = int(value[0])
 
-		print(width)
-		print(height)
+		#Get an iframe with the correct format
 		html = developIframe(decodedURL, width, height)
-		print(html)
 
+		#Structure and send request with the JSON response
+		return structureResponse(html, width, height)
 
 	else:
 		print("It's an error!")
@@ -61,22 +61,29 @@ def parseTimeline(url):
 	return timelineURL
 
 def developIframe(url, width, height):
-	html = "<iframe src='" + url + "' width='" + width + "' height='" + height + "' frameborder='0'></iframe>"
+	html = "<iframe src='%s' width='%d' height='%d' frameborder='0'></iframe>" % (url, width, height)
 	return html
 
-def structureJSON(html):
+def structureResponse(html, width, height):
 
 	responseJSON = {}
 
 	#For Knight Lab Tools, we will need a `rich` type.
+	#As well a provider information
 	responseJSON['type'] = 'rich'
+	responseJSON['provider_name'] = "Knight Lab"
+	responseJSON['provider_url'] = "http://knightlab.northwestern.edu/"
 
 	#oEmbed explains that the version must be 1.
-	responseJSON['version'] = 1.0
+	responseJSON['version'] = '1.0'
 
 	#For rich-type content, oEmbed requires html, 
 	#width, and height parameters.
 	responseJSON['html'] = html
+	responseJSON['width'] = width
+	responseJSON['height'] = height
+
+	return responseJSON
 
 
 if __name__ == '__main__':
