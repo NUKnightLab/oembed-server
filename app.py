@@ -1,16 +1,26 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request
+from urlparse import urlparse
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return "Hello, World!"
+# Format for the oEmbed requests:
+# oembed.knightlab.com?url=<a URL to a timeline>
+# 
+@app.route('/', methods=['GET'])
+def get_url_param():
+	fullPath = request.url
+	urlChunks = fullPath.split("/?url=")
 
-@app.route('/services/oembed', methods=['GET'])
-def get_tasks():
-	test = request.args.get('id')
-	return jsonify({'result': test})
+	if len(urlChunks) <= 2:
+		url = urlChunks[1]
+		return jsonify({'result': url})
+	else:
+		return jsonify({'result': "This is an erroneous request."})
+
+# def parseTimeline(url):
+
+
 
 
 
