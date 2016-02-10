@@ -1,6 +1,7 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request
-from urlparse import urlparse
+from urlparse import urlparse, parse_qs
+import urllib
 
 app = Flask(__name__)
 
@@ -14,15 +15,23 @@ def get_url_param():
 
 	if len(urlChunks) <= 2:
 		url = urlChunks[1]
-		return jsonify({'result': url})
+		result = parseTimeline(url)
+		return jsonify({'result': result})
 	else:
 		return jsonify({'result': "This is an erroneous request."})
 
-# def parseTimeline(url):
+def parseTimeline(url):
+	timelineURL = urlparse(urllib.unquote(url).decode('utf8'))
+	if("timeline" in timelineURL.path):
+		print(parse_qs(timelineURL.query))
 
+	else:
+		print("It's an error!")
 
+	return timelineURL
 
-
+# def structureJSON(type, ):
+	
 
 if __name__ == '__main__':
     app.run(debug=True)
