@@ -5,8 +5,6 @@ import urllib
 
 app = Flask(__name__)
 
-time
-
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
