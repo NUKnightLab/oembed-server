@@ -2,22 +2,19 @@
 from flask import Flask, jsonify, request, make_response
 from urlparse import urlparse, parse_qs
 import urllib
+from helper import *
 
 app = Flask(__name__)
-
-#Function for clearly printing a dictionary's values
-def dictPrint(dictIn):
-	try: 
-		for attribute, value in dictIn.items():
-			print('{} : {}'.format(attribute, value))
-		print('\n')
-	except:
-		f1.write('\n =============================== \n PRINTING ISSUE FOR UNICODE \n =============================== \n')
 
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
 def developEmbed():
+	#Error Response formats
+	status404 = jsonify({'result': "This is an erroneous request."}), 404
+	# status501
+	# status401
+
 	fullPath = request.url
 	urlChunks = fullPath.split("/?url=")
 
@@ -30,7 +27,7 @@ def developEmbed():
 
 		return resp
 	else:
-		return jsonify({'result': "This is an erroneous request."}), 404
+		return status404
 
 
 #This function needs to consider all of the options for timelines.
