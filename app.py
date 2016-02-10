@@ -1,5 +1,5 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from urlparse import urlparse, parse_qs
 import urllib
 
@@ -17,14 +17,18 @@ def dictPrint(dictIn):
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
-def get_url_param():
+def developEmbed():
 	fullPath = request.url
 	urlChunks = fullPath.split("/?url=")
 
 	if len(urlChunks) <= 2:
 		url = urlChunks[1]
 		result = parseTimeline(url)
-		return jsonify(result)
+
+		resp = make_response(jsonify(result))
+		resp.headers['Content-type'] = 'application/json; charset=utf-8'
+
+		return resp
 	else:
 		return jsonify({'result': "This is an erroneous request."})
 
