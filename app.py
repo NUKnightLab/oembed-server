@@ -20,7 +20,10 @@ def developEmbed():
 
 	if len(urlChunks) == 2:
 		url = urlChunks[1]
-		result = parseTimeline(url)
+		result = parseURLs(url)
+		
+		if(result == None):
+			return status404
 
 		resp = make_response(jsonify(result))
 		resp.headers['Content-type'] = 'application/json; charset=utf-8'
@@ -30,18 +33,16 @@ def developEmbed():
 		return status404
 
 
-#This function needs to consider all of the options for timelines.
-def parseTimeline(url):
+#This function needs to consider all of the options for KL tools.
+def parseURLs(url):
 	decodedURL = urllib.unquote(url).decode('utf8')
-	timelineURL = urlparse(urllib.unquote(url).decode('utf8'))
-	if("timeline" in timelineURL.path):
+	parsedURL = urlparse(urllib.unquote(url).decode('utf8'))
 
+	if("timeline" in parsedURL.path):
 		#Set some defaults for height and width.
 		width = 600
 		height = 600
-
-		params = parse_qs(timelineURL.query)
-		dictPrint(params)
+		params = parse_qs(parsedURL.query)
 
 		#Find the height and width fields to set for iframe html
 		for key, value in params.iteritems():
@@ -50,19 +51,36 @@ def parseTimeline(url):
 			elif(key == 'height'):
 				height = int(value[0])
 
-		#Get an iframe with the correct format
-		html = developIframe(decodedURL, width, height)
+	elif("storymapjs" in parsedURL.path):
+		#Set some defaults for height and width.
+		width = '100%'
+		height = 800
 
-		#Structure and send request with the JSON response
-		return structureResponse(html, width, height)
+	elif("juxtapose" in parsedURL.path):
+		#Set some defaults for height and width.
+		width = '100%'
+		height = 600
 
 	else:
-		print("It's an error!")
+		return None
 
-	return timelineURL
+	#Get an iframe with the correct format
+	html = developIframe(decodedURL, width, height)
+
+	#Structure and send request with the JSON response
+	return structureResponse(html, width, height)
 
 def developIframe(url, width, height):
-	html = "<iframe src='%s' width='%d' height='%d' frameborder='0'></iframe>" % (url, width, height)
+	html = "<iframe src='{}' width='{}' height='{}'"
+	
+	#Add the Juxtapose class
+	if("juxtapose" in url):
+		html += " class='juxtapose' "
+
+	html += " frameborder='0'></iframe>"
+
+	html = html.format(url, width, height)
+
 	return html
 
 def structureResponse(html, width, height):
