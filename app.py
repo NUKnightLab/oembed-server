@@ -63,9 +63,9 @@ def parseURLs(url):
 		#Find the height and width fields to set for iframe html
 		for key, value in params.iteritems():
 			if(key == 'width'):
-				width = int(value[0])
+				width = [value[0] if "%" in value[0] else int(value[0])]
 			elif(key == 'height'):
-				height = int(value[0])
+				height = [value[0] if "%" in value[0] else int(value[0])]
 
 	elif("storymapjs" in parsedURL.path):
 		#Set some defaults for height and width.
