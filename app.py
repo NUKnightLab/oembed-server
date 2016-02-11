@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request, make_response
 from urlparse import urlparse, parse_qs
 import urllib
 from helper import *
+import math
 
 app = Flask(__name__)
 
@@ -14,39 +15,65 @@ def index():
 
 @app.route('/timeline/', methods=['GET'])
 def timelineRequest():
-	return handleRequest(request.url)
+	return handleTimelineRequest(request)
 
 @app.route('/storymap/', methods=['GET'])
 def storymapRequest():
-	return handleRequest(request.url)
+	return handleStorymapRequest(request)
 
 @app.route('/juxtapose/', methods=['GET'])
 def juxtaposeRequest():
-	return handleRequest(request)
+	return handleJuxtaposeRequest(request)
 
-def handleRequest(request):
+def handleTimelineRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
 	# status501
 	# status401
 
 	params = request.args
+
+	#Set some defaults for height and width.
+	width = 600
+	height = 600
 	maxwidth = None
 	maxheight = None
 
 	if "url" in params:
 		url = params["url"]
-
+		print(url)
 		#Check to see if maxwidth or maxheight are in the request
 		if("maxwidth" in params):
 			maxwidth = params["maxwidth"]
 		if("maxheight" in params):
 			maxheight = params["maxheight"]
 
- 		result = parseURLs(url, maxwidth, maxheight)
+ 		decodedURL = urllib.unquote(url).decode('utf8')
+		parsedURL = urlparse(decodedURL)
 		
-		if(result == None):
-			return status404
+		#Take params from the Timeline URL
+		contentParams = parse_qs(parsedURL.query)
+		print(contentParams)
+
+		#Find the height and width fields to set for iframe html
+		for key, value in contentParams.iteritems():
+			if(key == 'width'):
+				width = value[0] if "%" in value[0] else int(value[0])
+			elif(key == 'height'):
+				height = value[0] if "%" in value[0] else int(value[0])
+
+		print(maxwidth)
+		print(width)
+
+		if(int(maxwidth) < int(width)):
+			width = int(maxwidth)
+			height = scaleHeight(int(width), int(maxwidth), int(height))
+
+		#Get an iframe with the correct format
+		html = developIframe(decodedURL, width, height)
+
+		#Structure and send request with the JSON response
+		result = structureResponse(html, width, height)
 
 		resp = make_response(jsonify(result))
 		resp.headers['Content-type'] = 'application/json; charset=utf-8'
@@ -55,43 +82,100 @@ def handleRequest(request):
 	else:
 		return status404
 
-#This function needs to consider all of the options for KL tools.
-def parseURLs(url, maxwidth, maxheight):
-	decodedURL = urllib.unquote(url).decode('utf8')
-	parsedURL = urlparse(urllib.unquote(url).decode('utf8'))
-	
-	if("timeline" in parsedURL.path):
-		#Set some defaults for height and width.
-		width = 600
-		height = 600
+def handleStorymapRequest(request):
+	#Error Response formats
+	status404 = jsonify({'result': "This is an erroneous request."}), 404
+	# status501
+	# status401
 
-		#Find the height and width fields to set for iframe html
-		for key, value in params.iteritems():
-			if(key == 'width'):
-				width = [value[0] if "%" in value[0] else int(value[0])]
-			elif(key == 'height'):
-				height = [value[0] if "%" in value[0] else int(value[0])]
+	params = request.args
 
-	elif("storymapjs" in parsedURL.path):
-		#Set some defaults for height and width.
-		width = '100%'
-		height = 800
+	#Set some defaults for height and width.
+	width = '100%'
+	height = 800
+	maxwidth = None
+	maxheight = None
 
-	elif("juxtapose" in parsedURL.path):
-		#Set some defaults for height and width.
-		width = '100%'
-		height = 600
+	if "url" in params:
+		url = params["url"]
+		print(url)
+		#Check to see if maxwidth or maxheight are in the request
+		if("maxwidth" in params):
+			maxwidth = params["maxwidth"]
+		if("maxheight" in params):
+			maxheight = params["maxheight"]
 
+		# if(int(maxwidth) < int(width)):
+		# 	width = int(maxwidth)
+		# 	height = scaleHeight(int(width), int(maxwidth), int(height))
+
+		decodedURL = urllib.unquote(url).decode('utf8')
+
+		#Get an iframe with the correct format
+		html = developIframe(decodedURL, width, height)
+
+		#Structure and send request with the JSON response
+		result = structureResponse(html, width, height)
+
+		resp = make_response(jsonify(result))
+		resp.headers['Content-type'] = 'application/json; charset=utf-8'
+
+		return resp
 	else:
-		return None
+		return status404
 
-	#Get an iframe with the correct format
-	html = developIframe(decodedURL, width, height, maxwidth, maxheight)
+def handleJuxtaposeRequest(request):
+	#Error Response formats
+	status404 = jsonify({'result': "This is an erroneous request."}), 404
+	# status501
+	# status401
 
-	#Structure and send request with the JSON response
-	return structureResponse(html, width, height)
+	params = request.args
 
-def developIframe(url, width, height, maxwidth, maxheight):
+	#Set some defaults for height and width.
+	width = '100%'
+	height = 600
+	maxwidth = None
+	maxheight = None
+
+	if "url" in params:
+		url = params["url"]
+		print(url)
+		#Check to see if maxwidth or maxheight are in the request
+		if("maxwidth" in params):
+			maxwidth = params["maxwidth"]
+		if("maxheight" in params):
+			maxheight = params["maxheight"]
+
+		decodedURL = urllib.unquote(url).decode('utf8')
+
+		# if(int(maxwidth) < int(width)):
+		# 	width = int(maxwidth)
+		# 	height = scaleHeight(int(width), int(maxwidth), int(height))
+
+		#Get an iframe with the correct format
+		html = developIframe(decodedURL, width, height)
+
+		#Structure and send request with the JSON response
+		result = structureResponse(html, width, height)
+
+		resp = make_response(jsonify(result))
+		resp.headers['Content-type'] = 'application/json; charset=utf-8'
+
+		return resp
+	else:
+		return status404
+
+def scaleHeight(width, maxwidth, height):
+	print("Initial Width was {}".format(width))
+	newWidth = maxwidth
+	newHeight =  math.ceil(((maxwidth * height))/width)
+	print("New Width is {}".format(newWidth))
+	print("New Height is {}".format(newHeight))
+	return int(newHeight)
+	#CHANGE THE URL'S WIDTH PARAM VALUE
+	
+def developIframe(url, width, height):
 	# print("MaxWidth: {}, MaxHeight: {}".format(maxwidth, maxheight))
 
 	html = "<iframe src='{}' width='{}' height='{}'"
