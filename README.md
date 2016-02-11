@@ -1,5 +1,7 @@
+<<<<<<< HEAD
 #Knight Lab oEmbed Server
-A Flask server for handling oEmbed requests.
+A system to take oembed requests for KnightLab's embeddable tools.
 
 ###Useful Documentation
 Coming soon...
+
