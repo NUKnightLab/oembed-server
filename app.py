@@ -22,22 +22,28 @@ def storymapRequest():
 
 @app.route('/juxtapose/', methods=['GET'])
 def juxtaposeRequest():
-	print("Hit Juxtapose endpoint")
-	return handleRequest(request.url)
+	return handleRequest(request)
 
-def handleRequest(requestURL):
+def handleRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
 	# status501
 	# status401
 
-	fullPath = requestURL
-	urlChunks = fullPath.split("/?url=")
-	print(urlChunks)
+	params = request.args
+	maxwidth = None
+	maxheight = None
 
-	if len(urlChunks) == 2:
-		url = urlChunks[1]
-		result = parseURLs(url)
+	if "url" in params:
+		url = params["url"]
+
+		#Check to see if maxwidth or maxheight are in the request
+		if("maxwidth" in params):
+			maxwidth = params["maxwidth"]
+		if("maxheight" in params):
+			maxheight = params["maxheight"]
+
+ 		result = parseURLs(url, maxwidth, maxheight)
 		
 		if(result == None):
 			return status404
@@ -50,15 +56,14 @@ def handleRequest(requestURL):
 		return status404
 
 #This function needs to consider all of the options for KL tools.
-def parseURLs(url):
+def parseURLs(url, maxwidth, maxheight):
 	decodedURL = urllib.unquote(url).decode('utf8')
 	parsedURL = urlparse(urllib.unquote(url).decode('utf8'))
-
+	
 	if("timeline" in parsedURL.path):
 		#Set some defaults for height and width.
 		width = 600
 		height = 600
-		params = parse_qs(parsedURL.query)
 
 		#Find the height and width fields to set for iframe html
 		for key, value in params.iteritems():
@@ -81,12 +86,14 @@ def parseURLs(url):
 		return None
 
 	#Get an iframe with the correct format
-	html = developIframe(decodedURL, width, height)
+	html = developIframe(decodedURL, width, height, maxwidth, maxheight)
 
 	#Structure and send request with the JSON response
 	return structureResponse(html, width, height)
 
-def developIframe(url, width, height):
+def developIframe(url, width, height, maxwidth, maxheight):
+	# print("MaxWidth: {}, MaxHeight: {}".format(maxwidth, maxheight))
+
 	html = "<iframe src='{}' width='{}' height='{}'"
 	
 	#Add the Juxtapose class
