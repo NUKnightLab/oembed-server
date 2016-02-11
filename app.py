@@ -9,14 +9,31 @@ app = Flask(__name__)
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
-def developEmbed():
+def index():
+	return jsonify({"message" : "More info about how to use the oEmbed server to come soon"})
+
+@app.route('/timeline/', methods=['GET'])
+def timelineRequest():
+	return handleRequest(request.url)
+
+@app.route('/storymap/', methods=['GET'])
+def storymapRequest():
+	return handleRequest(request.url)
+
+@app.route('/juxtapose/', methods=['GET'])
+def juxtaposeRequest():
+	print("Hit Juxtapose endpoint")
+	return handleRequest(request.url)
+
+def handleRequest(requestURL):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
 	# status501
 	# status401
 
-	fullPath = request.url
+	fullPath = requestURL
 	urlChunks = fullPath.split("/?url=")
+	print(urlChunks)
 
 	if len(urlChunks) == 2:
 		url = urlChunks[1]
@@ -31,7 +48,6 @@ def developEmbed():
 		return resp
 	else:
 		return status404
-
 
 #This function needs to consider all of the options for KL tools.
 def parseURLs(url):
