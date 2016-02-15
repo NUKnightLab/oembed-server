@@ -66,8 +66,9 @@ def handleTimelineRequest(request):
 		print(width)
 
 		if(int(maxwidth) < int(width)):
-			width = int(maxwidth)
 			height = scaleHeight(int(width), int(maxwidth), int(height))
+			width = int(maxwidth)
+			print(height)
 
 		#Get an iframe with the correct format
 		html = developIframe(decodedURL, width, height)
@@ -167,7 +168,7 @@ def handleJuxtaposeRequest(request):
 		return status404
 
 def scaleHeight(width, maxwidth, height):
-	print("Initial Width was {}".format(width))
+	print("Initial Width was {}. Initial Height was {}.".format(width, height))
 	newWidth = maxwidth
 	newHeight =  math.ceil(((maxwidth * height))/width)
 	print("New Width is {}".format(newWidth))
