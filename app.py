@@ -65,10 +65,11 @@ def handleTimelineRequest(request):
 			print(maxwidth)
 			print(width)
 
-			if(int(maxwidth) < int(width)):
-				height = scaleHeight(int(width), int(maxwidth), int(height))
-				width = int(maxwidth)
-				print(height)
+			if "%" not in maxwidth:
+				if(int(maxwidth) < int(width)):
+					height = scaleHeight(int(width), int(maxwidth), int(height))
+					width = int(maxwidth)
+					print(height)
 
 			#Get an iframe with the correct format
 			html = developIframe(decodedURL, width, height)
