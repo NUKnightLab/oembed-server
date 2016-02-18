@@ -1,7 +1,8 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request, make_response
-from urlparse import urlparse, parse_qs
+from urlparse import urlparse, parse_qs, urlunparse
 import urllib
+from urllib import urlencode
 from helper import *
 import math
 
@@ -49,11 +50,10 @@ def handleTimelineRequest(request):
 				maxheight = params["maxheight"]
 
 	 		decodedURL = urllib.unquote(url).decode('utf8')
-			parsedURL = urlparse(decodedURL)
+			scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
 			
 			#Take params from the Timeline URL
-			contentParams = parse_qs(parsedURL.query)
-			print(contentParams)
+			contentParams = parse_qs(query)
 
 			#Find the height and width fields to set for iframe html
 			for key, value in contentParams.iteritems():
@@ -62,14 +62,17 @@ def handleTimelineRequest(request):
 				elif(key == 'height'):
 					height = value[0] if "%" in value[0] else int(value[0])
 
-			print(maxwidth)
-			print(width)
-
 			if "%" not in maxwidth:
 				if(int(maxwidth) < int(width)):
 					height = scaleHeight(int(width), int(maxwidth), int(height))
 					width = int(maxwidth)
 					print(height)
+
+					contentParams['width'] = ['{}'.format(width)]
+					contentParams['height'] = ['{}'.format(height)]
+					query = urlencode(contentParams, doseq=True)
+					editURL = urlunparse((scheme, netloc, path, params, query, fragment))
+					decodedURL = editURL
 
 			#Get an iframe with the correct format
 			html = developIframe(decodedURL, width, height)
@@ -109,11 +112,14 @@ def handleStorymapRequest(request):
 			if("maxheight" in params):
 				maxheight = params["maxheight"]
 
-			# if(int(maxwidth) < int(width)):
-			# 	width = int(maxwidth)
-			# 	height = scaleHeight(int(width), int(maxwidth), int(height))
-
 			decodedURL = urllib.unquote(url).decode('utf8')
+
+			if(maxwidth != None):
+				if ("%" not in maxwidth):
+					width = int(maxwidth)
+			if(maxheight != None):
+				if ("%" not in maxheight):
+					height = int(maxheight)
 
 			#Get an iframe with the correct format
 			html = developIframe(decodedURL, width, height)
@@ -155,9 +161,12 @@ def handleJuxtaposeRequest(request):
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
-			# if(int(maxwidth) < int(width)):
-			# 	width = int(maxwidth)
-			# 	height = scaleHeight(int(width), int(maxwidth), int(height))
+			if(maxwidth != None):
+				if ("%" not in maxwidth):
+					width = int(maxwidth)
+			if(maxheight != None):
+				if ("%" not in maxheight):
+					height = int(maxheight)
 
 			#Get an iframe with the correct format
 			html = developIframe(decodedURL, width, height)
