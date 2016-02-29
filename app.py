@@ -29,7 +29,7 @@ def juxtaposeRequest():
 def handleTimelineRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	# status501
+	status501 = jsonify({'result': "Not supported."}), 501
 	# status401
 
 	params = request.args
@@ -37,6 +37,9 @@ def handleTimelineRequest(request):
 	if "url" in params:
 		url = params["url"]
 		if("timeline" in url):
+
+			if params.get("format") == "xml":
+				return(status501)
 
 			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
@@ -88,7 +91,7 @@ def handleTimelineRequest(request):
 def handleStorymapRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	# status501
+	status501 = jsonify({'result': "Not supported."}), 501
 	# status401
 
 	params = request.args
@@ -96,6 +99,9 @@ def handleStorymapRequest(request):
 	if "url" in params:
 		url = params["url"]
 		if("storymap" in url):
+
+			if params.get("format") == "xml":
+				return(status501)
 			
 			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
@@ -131,7 +137,7 @@ def handleStorymapRequest(request):
 def handleJuxtaposeRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	# status501
+	status501 = jsonify({'result': "Not supported."}), 501
 	# status401
 
 	params = request.args
@@ -139,6 +145,9 @@ def handleJuxtaposeRequest(request):
 	if "url" in params:
 		url = params["url"]
 		if("juxtapose" in url):
+
+			if params.get("format") == "xml":
+				return(status501)
 			
 			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
