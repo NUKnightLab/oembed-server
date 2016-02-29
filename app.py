@@ -34,20 +34,16 @@ def handleTimelineRequest(request):
 
 	params = request.args
 
-	#Set some defaults for height and width.
-	width = 600
-	height = 600
-	maxwidth = None
-	maxheight = None
-
 	if "url" in params:
 		url = params["url"]
 		if("timeline" in url):
+
+			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
-			if("maxwidth" in params):
-				maxwidth = params["maxwidth"]
-			if("maxheight" in params):
-				maxheight = params["maxheight"]
+			maxwidth = params.get("maxwidth", None)
+			maxheight = params.get("maxheight", None)
+			width = params.get("width", 600)
+			height = params.get("height", 600)
 
 	 		decodedURL = urllib.unquote(url).decode('utf8')
 			scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
@@ -62,7 +58,7 @@ def handleTimelineRequest(request):
 				elif(key == 'height'):
 					height = value[0] if "%" in value[0] else int(value[0])
 
-			if "%" not in maxwidth:
+			if (maxwidth != None) and ("%" not in maxwidth):
 				if(int(maxwidth) < int(width)):
 					height = scaleHeight(int(width), int(maxwidth), int(height))
 					width = int(maxwidth)
@@ -97,20 +93,16 @@ def handleStorymapRequest(request):
 
 	params = request.args
 
-	#Set some defaults for height and width.
-	width = '100%'
-	height = 800
-	maxwidth = None
-	maxheight = None
-
 	if "url" in params:
 		url = params["url"]
 		if("storymap" in url):
+			
+			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
-			if("maxwidth" in params):
-				maxwidth = params["maxwidth"]
-			if("maxheight" in params):
-				maxheight = params["maxheight"]
+			maxwidth = params.get("maxwidth", None)
+			maxheight = params.get("maxheight", None)
+			width = params.get("width", '100%')
+			height = params.get("height", 800)
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
@@ -144,20 +136,16 @@ def handleJuxtaposeRequest(request):
 
 	params = request.args
 
-	#Set some defaults for height and width.
-	width = '100%'
-	height = 600
-	maxwidth = None
-	maxheight = None
-
 	if "url" in params:
 		url = params["url"]
 		if("juxtapose" in url):
+			
+			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
-			if("maxwidth" in params):
-				maxwidth = params["maxwidth"]
-			if("maxheight" in params):
-				maxheight = params["maxheight"]
+			maxwidth = params.get("maxwidth", None)
+			maxheight = params.get("maxheight", None)
+			width = params.get("width", '100%')
+			height = params.get("height", 600)
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
