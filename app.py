@@ -215,7 +215,7 @@ def structureResponse(html, width, height):
 	#As well a provider information
 	responseJSON['type'] = 'rich'
 	responseJSON['provider_name'] = "Knight Lab"
-	responseJSON['provider_url'] = "http://knightlab.northwestern.edu/"
+	responseJSON['provider_url'] = "https://knightlab.northwestern.edu/"
 
 	#oEmbed explains that the version must be 1.
 	responseJSON['version'] = '1.0'
