@@ -1,0 +1,38 @@
+<html>
+<head>
+  <title>Knight Lab oEmbed</title>
+  <link rel="icon" type="image/png" href="//cdn.knightlab.com/libs/purpleline/latest/img/favicon.ico">
+  <link href="//cloud.webtype.com/css/d4767ecb-457a-4677-8761-72f890add836.css" rel="stylesheet" type="text/css">
+  <link href="//cdn.knightlab.com/libs/purpleline/latest/css/purpleline.min.css" rel="stylesheet" type="text/css">
+  <link href="//cdn.knightlab.com/libs/purpleline/latest/css/navigation.css" rel="stylesheet" type="text/css">
+  <link href="//cdn.knightlab.com/libs/purpleline/latest/css/font-awesome/font-awesome.css" rel="stylesheet" type="text/css">
+  <link href="/static/css/oembed.css" rel="stylesheet" type="text/css">
+  {% block extra_head %}
+  {% endblock %}
+</head>
+<body>
+  <!-- Google Tag Manager -->
+  <!-- No content here yet. -->
+  <!-- End Google Tag Manager -->
+  <div class="panel" id="page-topper">
+<!--     {% include "_nav.html" %} -->
+      <div class="row" id="big-hed">
+          <div class="small-12 medium-10 medium-offset-1 columns">
+            <h1><span class="secondary">Knight Lab</span> <span class="logo-mark xxl">oEmbed</span></h1>
+            <h2 class="intro"></h2>
+          </div>
+      </div>
+  </div> <!-- .panel -->
+  <div class="container">
+    {% block content %}
+      Hey, you need some content in this here template
+    {% endblock content %}
+  {% block scripts %}
+  <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="//cdn.knightlab.com/libs/purpleline/latest/js/purpleline.js"></script>
+  <script type="text/javascript" src="//cdn.knightlab.com/libs/purpleline/latest/js/foundation.reveal.js"></script>
+  {% endblock %}
+  {% block extra_scripts %}
+  {% endblock %}
+  {% include "_footer.html" %}
+</body>

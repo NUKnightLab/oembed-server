@@ -1,0 +1,357 @@
+/* colors */
+.container {
+  margin-top: 40px; }
+
+.container > .panel {
+  margin-top: -40px; }
+
+footer {
+  margin-top: 40px; }
+
+/* Title style overrides */
+#big-hed {
+  margin: 30px auto  40px;
+  text-align: center; }
+  #big-hed h1 span.secondary {
+    display: block; }
+  #big-hed span.logo-mark.xxl {
+    margin-top: 0; }
+  #big-hed.collapsed {
+    margin-bottom: 0px;
+    text-align: left; }
+    #big-hed.collapsed h1 {
+      font-size: 30px; }
+      #big-hed.collapsed h1 span.secondary {
+        display: inline; }
+    #big-hed.collapsed span.logo-mark.xxl {
+      font-size: 30px; }
+
+/* Navbar */
+body.fixed-nav #page-topper {
+  width: 100%;
+  position: fixed;
+  z-index: 100; }
+body.fixed-nav #results-summary {
+  padding-top: 180px; }
+
+.top-bar {
+  border-right: 0;
+  border-left: 0; }
+
+.logo {
+  width: 130px;
+  margin: 12px auto; }
+
+#page-topper {
+  margin: -42px 0 42px 0;
+  padding: 0 0 15px 0;
+  border-right: 0;
+  border-left: 0; }
+
+.explainer {
+  text-align: right; }
+  .explainer label {
+    display: inline-block;
+    margin: 0 0 10px 0;
+    font-size: 12px; }
+
+.sample-results p {
+  font-size: 0.875em; }
+
+/* Filter UI */
+#date-range-type label {
+  display: inline-block;
+  font-size: 12px;
+  margin-top: 0px; }
+  #date-range-type label:first-child {
+    margin-right: 10px; }
+#date-range-type input[type='radio'] {
+  font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px; }
+
+.custom-date-start,
+.custom-date-end {
+  display: none; }
+
+.datepicker label {
+  text-align: right;
+  margin-top: 8px; }
+
+#date select,
+.datepicker select,
+#search-form input {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
+  border-radius: 0;
+  background-color: white; }
+
+#spinner-holder {
+  text-align: center; }
+
+#spinner-holder i,
+.num-of-results,
+.query-results {
+  color: #ce4d28; }
+
+#results-block {
+  min-height: 400px; }
+
+/* Email sub box */
+#sub-box {
+  display: none; }
+
+input#search-subscribe-email {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.subscription-email span {
+  color: #ce4d28; }
+
+#search-input {
+  margin: 10px 0 5px;
+  font-size: 1.5em;
+  /*padding: 25px 40px 25px 15px;*/
+  height: 50px; }
+
+#search-submit {
+  margin-top: 32px;
+  margin-bottom: 0px;
+  font-size: 1.5em;
+  height: 51px; }
+
+#search-subscribe-form,
+#sort-by {
+  display: none; }
+
+.alert-box {
+  margin: 40px auto; }
+
+.status-msg {
+  text-align: left;
+  padding: 0 0 0 10px;
+  font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #888;
+  line-height: 1.4em; }
+  .status-msg.error {
+    color: #ce4d28; }
+
+/* notifications.html */
+#notifications-list table.columns {
+  padding: 0; }
+#notifications-list td, #notifications-list th {
+  padding: 1em; }
+#notifications-list table p {
+  margin-bottom: 0; }
+  #notifications-list table p.deleted {
+    color: #888;
+    text-decoration: line-through; }
+
+a.delete-subscription {
+  color: #ce4d28;
+  text-decoration: underline; }
+  a.delete-subscription:hover, a.delete-subscription:active, a.delete-subscription:focus {
+    color: #792d17; }
+  a.delete-subscription.deleted {
+    color: #888;
+    text-decoration: none;
+    font-style: italic;
+    cursor: default; }
+
+/* Search results list */
+#sort-by {
+  display: none;
+  margin-bottom: 50px; }
+  #sort-by .option {
+    cursor: pointer;
+    color: #1dacd6;
+    padding: 5px;
+    margin: 1px; }
+    #sort-by .option.active {
+      margin: 0;
+      background-color: #f2f2f2;
+      border: 1px solid #d8d8d8; }
+    #sort-by .option:hover {
+      margin: 0;
+      background-color: #f2f2f2;
+      border: 1px solid #f2f2f2; }
+  #sort-by .meta {
+    margin: 0;
+    color: #333; }
+  #sort-by p:first-child {
+    margin-right: 10px; }
+
+#search-result-taxonomy .result.row {
+  background-color: #f2f2f2; }
+  #search-result-taxonomy .result.row h5 {
+    margin-top: 5px; }
+  #search-result-taxonomy .result.row p:first-child::before {
+    content: ""; }
+  #search-result-taxonomy .result.row .explainer {
+    display: inline-block;
+    font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    font-style: italic;
+    border-bottom: 2px solid #c34528;
+    background-color: #f7ccb2;
+    padding: 2px 10px;
+    margin: 0 0 2px 0; }
+    #search-result-taxonomy .result.row .explainer.right {
+      border-bottom: none;
+      border-top: 2px solid #c34528;
+      margin: 5px 0 0 0; }
+#search-result-taxonomy .explainer ~ .arrow {
+  margin-top: 4px; }
+#search-result-taxonomy .page-preview {
+  padding-top: 10px; }
+#search-result-taxonomy .arrow {
+  display: inline-block;
+  margin-top: -19px;
+  position: absolute;
+  font-size: 30px;
+  margin-left: -38px;
+  color: #c34528;
+  transform: rotate(-12deg); }
+  #search-result-taxonomy .arrow.right {
+    margin-top: -34px;
+    margin-left: 48px; }
+
+.result.row {
+  margin-bottom: 2.2em;
+  padding: 10px 0 30px; }
+  .result.row h5 {
+    margin: 0 0 15px 0;
+    line-height: 1.6rem; }
+
+#search-results.compact .result.row {
+  margin-bottom: 0px;
+  padding-bottom: 0; }
+#search-results .result.single.row:hover, #search-results .result.single.row:active, #search-results .result.single.row:focus,
+#search-results .result.multi.row .page-preview:hover,
+#search-results .result.multi.row .page-preview:active,
+#search-results .result.multi.row .page-preview:focus {
+  background-color: #ebf3f5; }
+
+a.read-more {
+  display: block; }
+
+.page-preview img {
+  border: 1px solid #eee;
+  box-shadow: 1px 1px 5px #ccc;
+  margin: 0px 10px 0px;
+  max-width: 140px; }
+  .page-preview img.nonexistant {
+    display: none; }
+
+.page-count {
+  text-align: center;
+  width: 140px;
+  height: 180px;
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: 1px 1px 5px #ccc;
+  font-size: 50px;
+  line-height: 89px;
+  font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  display: inline-block;
+  color: #ccc;
+  text-shadow: 1px 1px 0px #888;
+  transition: all 0.3s ease; }
+  .page-count span {
+    font-size: 16px;
+    display: block;
+    line-height: 0px; }
+
+.multi .page-preview p {
+  margin: 6px 0;
+  text-align: center; }
+
+.help,
+.updated-date,
+.download-pdf,
+.more-info {
+  font-size: 12px;
+  font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+.help {
+  margin: 10px 0;
+  line-height: 1; }
+
+.meta {
+  display: inline-block;
+  margin: 0 20px 10px 0;
+  color: #888; }
+  .meta .label {
+    font-size: 12px; }
+    .meta .label.secondary {
+      display: inline-block; }
+    .meta .label.warning {
+      background-color: #eae34a;
+      color: #333; }
+
+/* TODO: Style `h5 a` differently than `a h5` so users can differentiate between a MatterTitle that is clickable (i.e. one for a matter that has only one document) and a MatterTitle that is not */
+.updated-date {
+  margin: 0 20px 0 0;
+  color: #888;
+  display: inline-block; }
+
+.more-info {
+  float: right;
+  padding-top: 35px; }
+
+.multi .more-info {
+  padding-top: 0px; }
+
+.download-pdf {
+  margin-left: 20px; }
+
+/* summary sidebar */
+.result-category span {
+  color: #888;
+  font-style: italic;
+  margin-left: 4px;
+  font-size: 0.9em; }
+
+/* purpleline additions to make*/
+.reveal-modal.open {
+  padding-top: 55px; }
+
+select:focus {
+  border-color: #888;
+  outline: none; }
+
+.side-nav {
+  background: #fff;
+  padding: 0 20px 0 0;
+  border-right: 1px solid #d8d8d8;
+  text-align: right; }
+
+/* FAQ styles; should be a dl; put this in purpleline as a pattern */
+.question dt {
+  padding-left: 25px;
+  margin-bottom: 0.7rem;
+  font-weight: bold; }
+  .question dt::before {
+    content: "Q: ";
+    margin-left: -25px;
+    font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #ce4d28;
+    font-weight: bold;
+    font-style: normal; }
+.question dd p:first-child::before {
+  content: "A: ";
+  font-family: "Apres RE", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #ce4d28;
+  font-weight: bold;
+  font-style: normal; }
+.question dd .extended-answer {
+  display: none; }
+  .question dd .extended-answer p:first-child::before {
+    content: ""; }
+
+/* end purpleline fixes */
+
+/*# sourceMappingURL=cityhallmonitor.css.map */

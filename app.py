@@ -1,18 +1,19 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, render_template
 from urlparse import urlparse, parse_qs, urlunparse
 import urllib
 from urllib import urlencode
 from helper import *
 import math
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
 def index():
-	return jsonify({"message" : "More info about how to use the oEmbed server to come soon"})
+	# return jsonify({"message" : "More info about how to use the oEmbed server to come soon"})
+	return render_template('base.html')
 
 @app.route('/timeline/', methods=['GET'])
 def timelineRequest():
