@@ -45,8 +45,8 @@ def handleTimelineRequest(request):
 			#Check to see if maxwidth or maxheight are in the request
 			maxwidth = params.get("maxwidth", None)
 			maxheight = params.get("maxheight", None)
-			width = params.get("width", 600)
-			height = params.get("height", 600)
+			width = params.get("width", "100%")
+			height = params.get("height", "100%")
 
 	 		decodedURL = urllib.unquote(url).decode('utf8')
 			scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
@@ -108,7 +108,7 @@ def handleStorymapRequest(request):
 			maxwidth = params.get("maxwidth", None)
 			maxheight = params.get("maxheight", None)
 			width = params.get("width", '100%')
-			height = params.get("height", 800)
+			height = params.get("height", '100%')
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
@@ -154,7 +154,7 @@ def handleJuxtaposeRequest(request):
 			maxwidth = params.get("maxwidth", None)
 			maxheight = params.get("maxheight", None)
 			width = params.get("width", '100%')
-			height = params.get("height", 600)
+			height = params.get("height", '100%')
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
