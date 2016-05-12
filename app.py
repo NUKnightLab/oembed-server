@@ -45,8 +45,8 @@ def handleTimelineRequest(request):
 			#Check to see if maxwidth or maxheight are in the request
 			maxwidth = params.get("maxwidth", None)
 			maxheight = params.get("maxheight", None)
-			width = params.get("width", 1000)
-			height = params.get("height", 700)
+			width = params.get("width", 700)
+			height = params.get("height", 500)
 
 	 		decodedURL = urllib.unquote(url).decode('utf8')
 			scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
