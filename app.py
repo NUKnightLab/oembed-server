@@ -154,8 +154,8 @@ def handleJuxtaposeRequest(request):
 			#Check to see if maxwidth or maxheight are in the request
 			maxwidth = params.get("maxwidth", None)
 			maxheight = params.get("maxheight", None)
-			width = params.get("width", 1000)
-			height = params.get("height", 700)
+			width = int(params.get("width", 700))
+			height = int(params.get("height", 500))
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
@@ -167,8 +167,6 @@ def handleJuxtaposeRequest(request):
 					height = int(maxheight)
 
 			#Get an iframe with the correct format
-			print("Width: " + str(width))
-			print("Height: " + str(height))
 			html = developIframe(decodedURL, width, height)
 
 			#Structure and send request with the JSON response
