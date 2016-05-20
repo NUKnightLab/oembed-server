@@ -114,10 +114,10 @@ def handleStorymapRequest(request):
 			decodedURL = urllib.unquote(url).decode('utf8')
 
 			if(maxwidth != None):
-				if ("%" not in maxwidth):
+				if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
 					width = int(maxwidth)
 			if(maxheight != None):
-				if ("%" not in maxheight):
+				if (("%" not in maxheight) and (int(maxheight) < int(height))):
 					height = int(maxheight)
 
 			#Get an iframe with the correct format
@@ -160,10 +160,10 @@ def handleJuxtaposeRequest(request):
 			decodedURL = urllib.unquote(url).decode('utf8')
 
 			if(maxwidth != None):
-				if ("%" not in maxwidth):
+				if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
 					width = int(maxwidth)
 			if(maxheight != None):
-				if ("%" not in maxheight):
+				if (("%" not in maxheight) and (int(maxheight) < int(height))):
 					height = int(maxheight)
 
 			#Get an iframe with the correct format
