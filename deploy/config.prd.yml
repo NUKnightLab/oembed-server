@@ -1,0 +1,2 @@
+domain: "oembed.knightlab.com"
+gunicorn_reload: False

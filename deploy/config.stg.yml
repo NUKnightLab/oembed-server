@@ -1,0 +1,2 @@
+domain: "oembed.knilab.com"
+gunicorn_reload: True # generally True on staging only
