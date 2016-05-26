@@ -29,31 +29,31 @@ def juxtaposeRequest():
 def handleTimelineRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	# status501
+	status501 = jsonify({'result': "Not supported."}), 501
 	# status401
 
 	params = request.args
 
-	#Set some defaults for height and width.
-	width = 600
-	height = 600
-	maxwidth = None
-	maxheight = None
-
 	if "url" in params:
 		url = params["url"]
 		if("timeline" in url):
+
+			if params.get("format") == "xml":
+				return(status501)
+
+			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
-			if("maxwidth" in params):
-				maxwidth = params["maxwidth"]
-			if("maxheight" in params):
-				maxheight = params["maxheight"]
+			maxwidth = params.get("maxwidth", None)
+			maxheight = params.get("maxheight", None)
+			width = params.get("width", 700)
+			height = params.get("height", 500)
 
 	 		decodedURL = urllib.unquote(url).decode('utf8')
 			scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
 			
 			#Take params from the Timeline URL
 			contentParams = parse_qs(query)
+			print(contentParams)
 
 			#Find the height and width fields to set for iframe html
 			for key, value in contentParams.iteritems():
@@ -62,7 +62,7 @@ def handleTimelineRequest(request):
 				elif(key == 'height'):
 					height = value[0] if "%" in value[0] else int(value[0])
 
-			if "%" not in maxwidth:
+			if (maxwidth != None) and ("%" not in maxwidth):
 				if(int(maxwidth) < int(width)):
 					height = scaleHeight(int(width), int(maxwidth), int(height))
 					width = int(maxwidth)
@@ -92,33 +92,32 @@ def handleTimelineRequest(request):
 def handleStorymapRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	# status501
+	status501 = jsonify({'result': "Not supported."}), 501
 	# status401
 
 	params = request.args
 
-	#Set some defaults for height and width.
-	width = '100%'
-	height = 800
-	maxwidth = None
-	maxheight = None
-
 	if "url" in params:
 		url = params["url"]
 		if("storymap" in url):
+
+			if params.get("format") == "xml":
+				return(status501)
+			
+			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
-			if("maxwidth" in params):
-				maxwidth = params["maxwidth"]
-			if("maxheight" in params):
-				maxheight = params["maxheight"]
+			maxwidth = params.get("maxwidth", None)
+			maxheight = params.get("maxheight", None)
+			width = params.get("width", 700)
+			height = params.get("height", 700)
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
 			if(maxwidth != None):
-				if ("%" not in maxwidth):
+				if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
 					width = int(maxwidth)
 			if(maxheight != None):
-				if ("%" not in maxheight):
+				if (("%" not in maxheight) and (int(maxheight) < int(height))):
 					height = int(maxheight)
 
 			#Get an iframe with the correct format
@@ -139,33 +138,32 @@ def handleStorymapRequest(request):
 def handleJuxtaposeRequest(request):
 	#Error Response formats
 	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	# status501
+	status501 = jsonify({'result': "Not supported."}), 501
 	# status401
 
 	params = request.args
 
-	#Set some defaults for height and width.
-	width = '100%'
-	height = 600
-	maxwidth = None
-	maxheight = None
-
 	if "url" in params:
 		url = params["url"]
 		if("juxtapose" in url):
+
+			if params.get("format") == "xml":
+				return(status501)
+			print(params)
+			#Set some defaults for height and width.
 			#Check to see if maxwidth or maxheight are in the request
-			if("maxwidth" in params):
-				maxwidth = params["maxwidth"]
-			if("maxheight" in params):
-				maxheight = params["maxheight"]
+			maxwidth = params.get("maxwidth", None)
+			maxheight = params.get("maxheight", None)
+			width = int(params.get("width", 700))
+			height = int(params.get("height", 500))
 
 			decodedURL = urllib.unquote(url).decode('utf8')
 
 			if(maxwidth != None):
-				if ("%" not in maxwidth):
+				if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
 					width = int(maxwidth)
 			if(maxheight != None):
-				if ("%" not in maxheight):
+				if (("%" not in maxheight) and (int(maxheight) < int(height))):
 					height = int(maxheight)
 
 			#Get an iframe with the correct format
@@ -215,7 +213,7 @@ def structureResponse(html, width, height):
 	#As well a provider information
 	responseJSON['type'] = 'rich'
 	responseJSON['provider_name'] = "Knight Lab"
-	responseJSON['provider_url'] = "http://knightlab.northwestern.edu/"
+	responseJSON['provider_url'] = "https://knightlab.northwestern.edu/"
 
 	#oEmbed explains that the version must be 1.
 	responseJSON['version'] = '1.0'
