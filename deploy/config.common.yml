@@ -12,3 +12,26 @@ requirements_file: "{{ deploy_dir }}/requirements.txt"
 service_name: "apps/{{ project_name }}"
 virtualenv: "{{ virtualenv_root }}/{{ project_name }}"
 wsgi_application: "{{ deploy_config_dir }}.wsgi:application"
+env_setup_script: "{{ deploy_dir }}/env.sh"
+env_run_script: "{{ deploy_dir }}/env_run.sh"
+
+# these will be merged with deployment-specific env into init_env
+#init_env_common:
+#  PROJECT_NAME: "{{ project_name }}"
+#  APPLICATION_DOMAINS: "{{ domains }}" # space-delimited
+#  EMAIL_HOST_USER: "{{ vault_email_host_user }}"
+#  EMAIL_HOST_PASSWORD: "{{ vault_email_host_password }}"
+#  DB_ENGINE__DEFAULT: "django.db.backends.postgresql_psycopg2"
+#  DB_NAME__DEFAULT: "{{ project_name }}_{{ env }}"
+#  DB_USER__DEFAULT: "{{ vault_db_user__default }}"
+#  DB_PASSWORD__DEFAULT: "{{ vault_db_password__default }}"
+#  DB_HOST__DEFAULT: "{{ vault_db_host__default }}"
+#  DB_PORT__DEFAULT: "{{ vault_db_port__default }}"
+
+# Configs common to all projects
+application_user: apps
+install_root: /home/{{ application_user }}/sites
+virtualenv_root: /home/{{ application_user }}/env
+supported_envs:
+  stg: master
+  prd: stg
