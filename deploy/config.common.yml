@@ -11,7 +11,7 @@ application_dir: "{{ deploy_dir }}"
 requirements_file: "{{ deploy_dir }}/requirements.txt"
 service_name: "apps/{{ project_name }}"
 virtualenv: "{{ virtualenv_root }}/{{ project_name }}"
-wsgi_application: "{{ deploy_config_dir }}.wsgi:application"
+wsgi_application: "wsgi:application"
 env_setup_script: "{{ deploy_dir }}/env.sh"
 env_run_script: "{{ deploy_dir }}/env_run.sh"
 
