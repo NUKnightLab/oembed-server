@@ -1,5 +1,5 @@
 project_name: oembed-server
-gitdeploy_version: "1.0.3"
+gitdeploy_version: "1.0.4"
 
 port: 9021
 python: python2
