@@ -30,8 +30,8 @@ def url_pattern_tester(pattern_string):
 			try:
 				if pattern.match(params['url']):
 					return f(*args, **kwargs)
-				raise Error("Didn't work with pstring[{}] and url[{}]".format(pattern_string, params['url']))
-			except: pass
+			except KeyError: 
+				pass
 			return status404
 		return func
 	return decorator
@@ -47,68 +47,21 @@ def index():
 @url_pattern_tester('^.+timeline3?.*$')
 @xml_is_not_supported
 def timelineRequest():
-	return handleTimelineRequest(request)
+	return handleRequest(request, 700, 500)
 
 @app.route('/storymap/', methods=['GET'])
 @url_pattern_tester('^.+storymap.*$')
 @xml_is_not_supported
 def storymapRequest():
-	return handleStorymapRequest(request)
+	return handleRequest(request, 700, 700)
 
 @app.route('/juxtapose/', methods=['GET'])
 @url_pattern_tester('^.+juxtapose.*$')
 @xml_is_not_supported
 def juxtaposeRequest():
-	return handleJuxtaposeRequest(request)
+	return handleRequest(request, 700, 500)
 
-def handleTimelineRequest(request):
-
-	params = request.args
-	url = params["url"]
-
-	#Set some defaults for height and width.
-	#Check to see if maxwidth or maxheight are in the request
-	maxwidth = params.get("maxwidth", None)
-	maxheight = params.get("maxheight", None)
-	width = params.get("width", 700)
-	height = params.get("height", 500)
-	
-	decodedURL = urllib.unquote(url).decode('utf8')
-	scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
-	
-	#Take params from the Timeline URL
-	contentParams = parse_qs(query)
-
-	#Find the height and width fields to set for iframe html
-	for key, value in contentParams.iteritems():
-		if(key == 'width'):
-			width = value[0] if "%" in value[0] else int(value[0])
-		elif(key == 'height'):
-			height = value[0] if "%" in value[0] else int(value[0])
-
-	if (maxwidth != None) and ("%" not in maxwidth):
-		if(int(maxwidth) < int(width)):
-			height = scaleHeight(int(width), int(maxwidth), int(height))
-			width = int(maxwidth)
-
-			contentParams['width'] = ['{}'.format(width)]
-			contentParams['height'] = ['{}'.format(height)]
-			query = urlencode(contentParams, doseq=True)
-			editURL = urlunparse((scheme, netloc, path, params, query, fragment))
-			decodedURL = editURL
-
-	#Get an iframe with the correct format
-	html = developIframe(decodedURL, width, height)
-
-	#Structure and send request with the JSON response
-	result = structureResponse(html, width, height)
-
-	resp = make_response(jsonify(result))
-	resp.headers['Content-type'] = 'application/json; charset=utf-8'
-
-	return resp
-
-def handleStorymapRequest(request):
+def handleRequest(request, default_width, default_height):
 
 	params = request.args
 	url = params['url']
@@ -116,10 +69,20 @@ def handleStorymapRequest(request):
 	#Check to see if maxwidth or maxheight are in the request
 	maxwidth = params.get("maxwidth", None)
 	maxheight = params.get("maxheight", None)
-	width = params.get("width", 700)
-	height = params.get("height", 700)
 
 	decodedURL = urllib.unquote(url).decode('utf8')
+
+	url_width, url_height = dims_from_url(decodedURL)
+
+	if url_width is not None: 
+		default_width = url_width
+	if url_height is not None:
+		default_height = url_height
+
+	# oembed service parameters take precedence
+	width = params.get("width", default_width)
+	height = params.get("height", default_height)
+
 
 	if(maxwidth != None):
 		if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
@@ -139,36 +102,26 @@ def handleStorymapRequest(request):
 
 	return resp
 
-def handleJuxtaposeRequest(request):
-	params = request.args
-	url = params["url"]
+def dims_from_url(url):
+	"""Return a tuple (w,h) based on extracting parameters named 'width' and 'height' from the given URL. Return None for either if not present."""
+	w = None
+	h = None
 
-	#Set some defaults for height and width.
-	#Check to see if maxwidth or maxheight are in the request
-	maxwidth = params.get("maxwidth", None)
-	maxheight = params.get("maxheight", None)
-	width = int(params.get("width", 700))
-	height = int(params.get("height", 500))
+	scheme, netloc, path, params, query, fragment = urlparse(url)
+	
+	#Take params from the Timeline URL
+	contentParams = parse_qs(query)
 
-	decodedURL = urllib.unquote(url).decode('utf8')
+	#Find the height and width fields to set for iframe html
+	for key, value in contentParams.iteritems():
+		if(key == 'width'):
+			w = value[0] if "%" in value[0] else int(value[0])
+		elif(key == 'height'):
+			h = value[0] if "%" in value[0] else int(value[0])
 
-	if(maxwidth != None):
-		if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
-			width = int(maxwidth)
-	if(maxheight != None):
-		if (("%" not in maxheight) and (int(maxheight) < int(height))):
-			height = int(maxheight)
+	return (w,h)
 
-	#Get an iframe with the correct format
-	html = developIframe(decodedURL, width, height)
 
-	#Structure and send request with the JSON response
-	result = structureResponse(html, width, height)
-
-	resp = make_response(jsonify(result))
-	resp.headers['Content-type'] = 'application/json; charset=utf-8'
-
-	return resp
 
 def scaleHeight(width, maxwidth, height):
 	newWidth = maxwidth

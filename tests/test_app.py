@@ -55,7 +55,6 @@ def test_xml_unsupported(client):
         assert rv.status_code == 501
 
 def test_unsupported_urls(client):
-    """URLs which aren't appropriate for the endpoint path should be 404"""
     paths = [x['path'] for x in TEST_CASES]
     urls = [x['url'] for x in TEST_CASES]
     urls.append(urls.pop(0)) # 'rotate' the list; it's possible that changes to TEST_VALUES would result in this not making a list of unsupported URLs but good for now
@@ -67,16 +66,14 @@ def test_unsupported_urls(client):
         }
 
         rv = client.get('{}?{}'.format(path, urlencode(params)))
-        assert rv.status_code == 404
+        assert rv.status_code == 404, "URLs which aren't appropriate for the endpoint path should be 404"
 
 def test_missing_urls(client):
-    "If no URL is provided, should be 404"
     for case in TEST_CASES:
         rv = client.get(case['path'])
-        assert rv.status_code == 404
+        assert rv.status_code == 404, "If no URL is provided, should be 404"
 
 def test_timeline_json(client):
-    """JSON format is supported."""
     path = '/timeline/'
     for case in TEST_CASES:
         if case['path'] == path:
@@ -86,12 +83,15 @@ def test_timeline_json(client):
             }
 
             rv = client.get('{}?{}'.format(path, urlencode(params)))
-            assert rv.status_code == 200
+            assert rv.status_code == 200, "response should be OK 200 for url [{}]".format(case['url'])
             j = json.loads(rv.data)
-            assert j['type'] == 'rich'
-            assert 'html' in j and len(j['html']) > 0
-            assert 'width' in j and j['width'] == case['w']
-            assert 'height' in j and j['height'] == case['h']
+            assert j['type'] == 'rich', "response should be type 'rich'"
+            assert 'html' in j 
+            assert len(j['html']) > 0
+            assert 'width' in j 
+            assert j['width'] == case['w']
+            assert 'height' in j 
+            assert j['height'] == case['h']
 
 def test_juxtapose_json(client):
     path = '/juxtapose/'
@@ -106,9 +106,12 @@ def test_juxtapose_json(client):
             assert rv.status_code == 200
             j = json.loads(rv.data)
             assert j['type'] == 'rich'
-            assert 'html' in j and len(j['html']) > 0
-            assert 'width' in j and j['width'] == case['w']
-            assert 'height' in j and j['height'] == case['h']
+            assert 'html' in j 
+            assert len(j['html']) > 0
+            assert 'width' in j 
+            assert j['width'] == case['w']
+            assert 'height' in j 
+            assert j['height'] == case['h']
 
 def test_storymap_json(client):
     """JSON format is supported."""
@@ -124,6 +127,9 @@ def test_storymap_json(client):
             assert rv.status_code == 200
             j = json.loads(rv.data)
             assert j['type'] == 'rich'
-            assert 'html' in j and len(j['html']) > 0
-            assert 'width' in j and j['width'] == case['w']
-            assert 'height' in j and j['height'] == case['h']
+            assert 'html' in j 
+            assert len(j['html']) > 0
+            assert 'width' in j 
+            assert j['width'] == case['w']
+            assert 'height' in j 
+            assert j['height'] == case['h']
