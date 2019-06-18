@@ -1,12 +1,41 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request, make_response
+from functools import wraps
 from urlparse import urlparse, parse_qs, urlunparse
 import urllib
 from urllib import urlencode
-from helper import *
 import math
+import re
 
 app = Flask(__name__)
+
+def xml_is_not_supported(f):
+	@wraps(f)
+	def func(*args, **kwargs):
+		params = request.args
+		if params.get("format") == "xml":
+			status501 = jsonify({'result': "Not supported."}), 501
+			return(status501)
+		return f(*args, **kwargs)
+	return func
+
+def url_pattern_tester(pattern_string):
+	"""Ensure that there's a URL, and that it is appropriate for the path."""
+	def decorator(f):
+		@wraps(f)
+		def func(*args, **kwargs):
+			pattern = re.compile(pattern_string)
+			status404 = jsonify({'result': "This is an erroneous request."}), 404
+			params = request.args
+			try:
+				if pattern.match(params['url']):
+					return f(*args, **kwargs)
+				raise Error("Didn't work with pstring[{}] and url[{}]".format(pattern_string, params['url']))
+			except: pass
+			return status404
+		return func
+	return decorator
+
 
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
@@ -15,183 +44,138 @@ def index():
 	return jsonify({"message" : "More info about how to use the oEmbed server to come soon"})
 
 @app.route('/timeline/', methods=['GET'])
+@url_pattern_tester('^.+timeline3?.*$')
+@xml_is_not_supported
 def timelineRequest():
 	return handleTimelineRequest(request)
 
 @app.route('/storymap/', methods=['GET'])
+@url_pattern_tester('^.+storymap.*$')
+@xml_is_not_supported
 def storymapRequest():
 	return handleStorymapRequest(request)
 
 @app.route('/juxtapose/', methods=['GET'])
+@url_pattern_tester('^.+juxtapose.*$')
+@xml_is_not_supported
 def juxtaposeRequest():
 	return handleJuxtaposeRequest(request)
 
 def handleTimelineRequest(request):
-	#Error Response formats
-	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	status501 = jsonify({'result': "Not supported."}), 501
-	# status401
 
 	params = request.args
+	url = params["url"]
 
-	if "url" in params:
-		url = params["url"]
-		if("timeline" in url):
+	#Set some defaults for height and width.
+	#Check to see if maxwidth or maxheight are in the request
+	maxwidth = params.get("maxwidth", None)
+	maxheight = params.get("maxheight", None)
+	width = params.get("width", 700)
+	height = params.get("height", 500)
+	
+	decodedURL = urllib.unquote(url).decode('utf8')
+	scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
+	
+	#Take params from the Timeline URL
+	contentParams = parse_qs(query)
 
-			if params.get("format") == "xml":
-				return(status501)
+	#Find the height and width fields to set for iframe html
+	for key, value in contentParams.iteritems():
+		if(key == 'width'):
+			width = value[0] if "%" in value[0] else int(value[0])
+		elif(key == 'height'):
+			height = value[0] if "%" in value[0] else int(value[0])
 
-			#Set some defaults for height and width.
-			#Check to see if maxwidth or maxheight are in the request
-			maxwidth = params.get("maxwidth", None)
-			maxheight = params.get("maxheight", None)
-			width = params.get("width", 700)
-			height = params.get("height", 500)
+	if (maxwidth != None) and ("%" not in maxwidth):
+		if(int(maxwidth) < int(width)):
+			height = scaleHeight(int(width), int(maxwidth), int(height))
+			width = int(maxwidth)
 
-	 		decodedURL = urllib.unquote(url).decode('utf8')
-			scheme, netloc, path, params, query, fragment = urlparse(decodedURL)
-			
-			#Take params from the Timeline URL
-			contentParams = parse_qs(query)
-			print(contentParams)
+			contentParams['width'] = ['{}'.format(width)]
+			contentParams['height'] = ['{}'.format(height)]
+			query = urlencode(contentParams, doseq=True)
+			editURL = urlunparse((scheme, netloc, path, params, query, fragment))
+			decodedURL = editURL
 
-			#Find the height and width fields to set for iframe html
-			for key, value in contentParams.iteritems():
-				if(key == 'width'):
-					width = value[0] if "%" in value[0] else int(value[0])
-				elif(key == 'height'):
-					height = value[0] if "%" in value[0] else int(value[0])
+	#Get an iframe with the correct format
+	html = developIframe(decodedURL, width, height)
 
-			if (maxwidth != None) and ("%" not in maxwidth):
-				if(int(maxwidth) < int(width)):
-					height = scaleHeight(int(width), int(maxwidth), int(height))
-					width = int(maxwidth)
-					print(height)
+	#Structure and send request with the JSON response
+	result = structureResponse(html, width, height)
 
-					contentParams['width'] = ['{}'.format(width)]
-					contentParams['height'] = ['{}'.format(height)]
-					query = urlencode(contentParams, doseq=True)
-					editURL = urlunparse((scheme, netloc, path, params, query, fragment))
-					decodedURL = editURL
+	resp = make_response(jsonify(result))
+	resp.headers['Content-type'] = 'application/json; charset=utf-8'
 
-			#Get an iframe with the correct format
-			html = developIframe(decodedURL, width, height)
-
-			#Structure and send request with the JSON response
-			result = structureResponse(html, width, height)
-
-			resp = make_response(jsonify(result))
-			resp.headers['Content-type'] = 'application/json; charset=utf-8'
-
-			return resp
-		else:
-			return status404
-	else:
-		return status404
+	return resp
 
 def handleStorymapRequest(request):
-	#Error Response formats
-	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	status501 = jsonify({'result': "Not supported."}), 501
-	# status401
 
 	params = request.args
+	url = params['url']
+	#Set some defaults for height and width.
+	#Check to see if maxwidth or maxheight are in the request
+	maxwidth = params.get("maxwidth", None)
+	maxheight = params.get("maxheight", None)
+	width = params.get("width", 700)
+	height = params.get("height", 700)
 
-	if "url" in params:
-		url = params["url"]
-		if("storymap" in url):
+	decodedURL = urllib.unquote(url).decode('utf8')
 
-			if params.get("format") == "xml":
-				return(status501)
-			
-			#Set some defaults for height and width.
-			#Check to see if maxwidth or maxheight are in the request
-			maxwidth = params.get("maxwidth", None)
-			maxheight = params.get("maxheight", None)
-			width = params.get("width", 700)
-			height = params.get("height", 700)
+	if(maxwidth != None):
+		if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
+			width = int(maxwidth)
+	if(maxheight != None):
+		if (("%" not in maxheight) and (int(maxheight) < int(height))):
+			height = int(maxheight)
 
-			decodedURL = urllib.unquote(url).decode('utf8')
+	#Get an iframe with the correct format
+	html = developIframe(decodedURL, width, height)
 
-			if(maxwidth != None):
-				if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
-					width = int(maxwidth)
-			if(maxheight != None):
-				if (("%" not in maxheight) and (int(maxheight) < int(height))):
-					height = int(maxheight)
+	#Structure and send request with the JSON response
+	result = structureResponse(html, width, height)
 
-			#Get an iframe with the correct format
-			html = developIframe(decodedURL, width, height)
+	resp = make_response(jsonify(result))
+	resp.headers['Content-type'] = 'application/json; charset=utf-8'
 
-			#Structure and send request with the JSON response
-			result = structureResponse(html, width, height)
-
-			resp = make_response(jsonify(result))
-			resp.headers['Content-type'] = 'application/json; charset=utf-8'
-
-			return resp
-		else:
-			return status404
-	else:
-		return status404
+	return resp
 
 def handleJuxtaposeRequest(request):
-	#Error Response formats
-	status404 = jsonify({'result': "This is an erroneous request."}), 404
-	status501 = jsonify({'result': "Not supported."}), 501
-	# status401
-
 	params = request.args
+	url = params["url"]
 
-	if "url" in params:
-		url = params["url"]
-		if("juxtapose" in url):
+	#Set some defaults for height and width.
+	#Check to see if maxwidth or maxheight are in the request
+	maxwidth = params.get("maxwidth", None)
+	maxheight = params.get("maxheight", None)
+	width = int(params.get("width", 700))
+	height = int(params.get("height", 500))
 
-			if params.get("format") == "xml":
-				return(status501)
-			print(params)
-			#Set some defaults for height and width.
-			#Check to see if maxwidth or maxheight are in the request
-			maxwidth = params.get("maxwidth", None)
-			maxheight = params.get("maxheight", None)
-			width = int(params.get("width", 700))
-			height = int(params.get("height", 500))
+	decodedURL = urllib.unquote(url).decode('utf8')
 
-			decodedURL = urllib.unquote(url).decode('utf8')
+	if(maxwidth != None):
+		if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
+			width = int(maxwidth)
+	if(maxheight != None):
+		if (("%" not in maxheight) and (int(maxheight) < int(height))):
+			height = int(maxheight)
 
-			if(maxwidth != None):
-				if (("%" not in maxwidth) and (int(maxwidth) < int(width))):
-					width = int(maxwidth)
-			if(maxheight != None):
-				if (("%" not in maxheight) and (int(maxheight) < int(height))):
-					height = int(maxheight)
+	#Get an iframe with the correct format
+	html = developIframe(decodedURL, width, height)
 
-			#Get an iframe with the correct format
-			html = developIframe(decodedURL, width, height)
+	#Structure and send request with the JSON response
+	result = structureResponse(html, width, height)
 
-			#Structure and send request with the JSON response
-			result = structureResponse(html, width, height)
+	resp = make_response(jsonify(result))
+	resp.headers['Content-type'] = 'application/json; charset=utf-8'
 
-			resp = make_response(jsonify(result))
-			resp.headers['Content-type'] = 'application/json; charset=utf-8'
-
-			return resp
-		else:
-			return status404
-	else:
-		return status404
+	return resp
 
 def scaleHeight(width, maxwidth, height):
-	print("Initial Width was {}. Initial Height was {}.".format(width, height))
 	newWidth = maxwidth
 	newHeight =  math.ceil(((maxwidth * height))/width)
-	print("New Width is {}".format(newWidth))
-	print("New Height is {}".format(newHeight))
 	return int(newHeight)
-	#CHANGE THE URL'S WIDTH PARAM VALUE
 	
 def developIframe(url, width, height):
-	# print("MaxWidth: {}, MaxHeight: {}".format(maxwidth, maxheight))
 
 	html = "<iframe src='{}' width='{}' height='{}'"
 	
