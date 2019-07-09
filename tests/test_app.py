@@ -31,7 +31,20 @@ TEST_CASES = [
         'url': 'https://cdn.knightlab.com/libs/storymapjs/latest/embed/?url=https://uploads.knightlab.com/storymapjs/a1a349b51799ee49e96bed10cc235e7f/aryas-journey/published.json',
         'w': 700,
         'h': 700
-    }
+    },
+    {
+        'path': '/scenevr/',
+        'url': 'https://uploads.knightlab.com/scenevr/1/47464704/index.html',
+        'w': '100%',
+        'h': 600
+    },
+    {
+        'path': '/theydrawit/',
+        'url': 'https://theydrawit.mucollective.co/vis/rak7DFGeDlcx2GP5OorN0wpWzlm2/-L_JympYd9VplTipkuWM',
+        'w': 700,
+        'h': 500
+    },
+    
 ]
 
 

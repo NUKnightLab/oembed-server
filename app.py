@@ -1,5 +1,5 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, render_template
 from functools import wraps
 from urlparse import urlparse, parse_qs, urlunparse
 import urllib
@@ -41,7 +41,14 @@ def url_pattern_tester(pattern_string):
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
 def index():
-	return jsonify({"message" : "More info about how to use the oEmbed server to come soon"})
+	# maybe get clever and have a single point?
+	# if 'url' in request.args:
+	# 	url = request.args['url']
+	# 	for pattern in REDIRECT_PATTERNS:
+	# 		if pattern.match(url):
+	# 			redir_url = url_for(REDIRECT_PATTERNS[])
+	# 			return redirect
+	return render_template('index.html')
 
 @app.route('/timeline/', methods=['GET'])
 @url_pattern_tester('^.+timeline3?.*$')
@@ -59,6 +66,24 @@ def storymapRequest():
 @url_pattern_tester('^.+juxtapose.*$')
 @xml_is_not_supported
 def juxtaposeRequest():
+	return handleRequest(request, 700, 500)
+
+@app.route('/scenevr/', methods=['GET'])
+@url_pattern_tester('^.+scenevr.*$')
+@xml_is_not_supported
+def sceneRequest():
+	return handleRequest(request, '100%', 600)
+
+@app.route('/theydrawit/', methods=['GET'])
+@url_pattern_tester('^.+theydrawit.*$')
+@xml_is_not_supported
+def drawItRequest():
+	return handleRequest(request, 700, 500)
+
+@app.route('/storyline/', methods=['GET'])
+@url_pattern_tester('^.+storyline.*$')
+@xml_is_not_supported
+def storylineRequest():
 	return handleRequest(request, 700, 500)
 
 def handleRequest(request, default_width, default_height):
@@ -130,17 +155,20 @@ def scaleHeight(width, maxwidth, height):
 	
 def developIframe(url, width, height):
 
-	html = "<iframe src='{}' width='{}' height='{}'"
+	html = """<iframe src='{url}' width='{width}' height='{height}' {cls} frameborder='0' allowfullscreen></iframe>"""
 	
+	format_context = {
+		'url': url,
+		'width': width,
+		'height': height,
+		'cls': ''
+	}
+
 	#Add the Juxtapose class
 	if("juxtapose" in url):
-		html += " class='juxtapose' "
+		format_context['cls'] = " class='juxtapose' "
 
-	html += " frameborder='0'></iframe>"
-
-	html = html.format(url, width, height)
-
-	return html
+	return html.format(**format_context)
 
 def structureResponse(html, width, height):
 
