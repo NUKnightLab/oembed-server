@@ -108,6 +108,34 @@
                     </div>
 
                 </div>
+                <div class="grid">
+                    <div class="column-10">
+                        <h2>Using this server directly</h2>
+                        <p>
+                            This server handles a number of oEmbed URL schemes. For all of them, use the same endpoint: <code>https://oembed.knightlab.com</code>. If no <code>url</code> parameter is provided, this instructional page appears. 
+                        </p>
+                        <p>
+                            If the <code>url</code> parameter value matches one of the following patterns, a JSON response will be returned. Otherwise, the server will return a <code>404 Not Found</code> error. 
+                        </p>
+                        <p>
+                            This endpoint also supports the <code>format</code>, <code>maxwidth</code>, and <code>maxheight</code> request parameters. Valid values for <code>format</code> are <code>json</code> and <code>xml</code>. If no format is specified, JSON is the default response type.  
+                        </p>
+                        <table>
+                            <thead>
+                            <tr><th>Service</th><th>Pattern</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for svc in services%}
+                                <tr>
+                                    <td><a href="{{svc.homepage}}">{{svc.service}}</a></td>
+                                    <td><code>{{svc.pattern.pattern}}</code></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                    
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 

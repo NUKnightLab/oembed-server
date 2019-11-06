@@ -1,5 +1,5 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request, make_response, render_template
+from flask import Flask, jsonify, request, make_response, render_template, url_for, redirect
 from functools import wraps
 from urlparse import urlparse, parse_qs, urlunparse
 import urllib
@@ -9,86 +9,69 @@ import re
 
 app = Flask(__name__)
 
-def xml_is_not_supported(f):
-	@wraps(f)
-	def func(*args, **kwargs):
-		params = request.args
-		if params.get("format") == "xml":
-			status501 = jsonify({'result': "Not supported."}), 501
-			return(status501)
-		return f(*args, **kwargs)
-	return func
+def xmlize(result):
+	import xml.etree.ElementTree as ET
+	root = ET.Element('oembed')
+	for k,v in result.items():
+		node = ET.SubElement(root, k)
+		node.text = str(v)
+	return ET.tostring(root, encoding='utf8', method='xml')
 
-def url_pattern_tester(pattern_string):
-	"""Ensure that there's a URL, and that it is appropriate for the path."""
-	def decorator(f):
-		@wraps(f)
-		def func(*args, **kwargs):
-			pattern = re.compile(pattern_string)
-			status404 = jsonify({'result': "This is an erroneous request."}), 404
-			params = request.args
-			try:
-				if pattern.match(params['url']):
-					return f(*args, **kwargs)
-			except KeyError: 
-				pass
-			return status404
-		return func
-	return decorator
-
+SUPPORTED_SERVICES = [
+	{'service': 'TimelineJS','homepage': 'https://timeline.knightlab.com', 'pattern': re.compile('^https://cdn.knightlab.com/libs/timeline3/.+$'), 'width': 700, 'height': 500},
+	{'service': 'StoryMapJS','homepage': 'https://storymap.knightlab.com', 'pattern': re.compile('^https://uploads.knightlab.com/storymapjs/.+$'), 'width': 700, 'height': 700},
+	{'service': 'JuxtaposeJS','homepage': 'https://juxtapose.knightlab.com', 'pattern': re.compile('^https://cdn.knightlab.com/libs/juxtapose/.+$'), 'width': 700, 'height': 500},
+	{'service': 'SceneVR','homepage': 'https://scene.knightlab.com', 'pattern': re.compile('^https://uploads.knightlab.com/scenevr/.+$'), 'width': '100%', 'height': 600},
+	{'service': 'StoryLineJS','homepage': 'https://storyline.knightlab.com', 'pattern': re.compile('^https://cdn.knightlab.com/libs/storyline/.+$'), 'width': 700, 'height': 500},
+	{'service': 'They Draw It','homepage': 'https://mucollective.co/theydrawit', 'pattern': re.compile('^https://theydrawit.mucollective.co/vis/.+$'), 'width': 700, 'height': 500},
+]
 
 # Format for the oEmbed requests:
 # oembed.knightlab.com?url=<a URL to a timeline>
 @app.route('/', methods=['GET'])
 def index():
 	# maybe get clever and have a single point?
-	# if 'url' in request.args:
-	# 	url = request.args['url']
-	# 	for pattern in REDIRECT_PATTERNS:
-	# 		if pattern.match(url):
-	# 			redir_url = url_for(REDIRECT_PATTERNS[])
-	# 			return redirect
-	return render_template('index.html')
+	if 'url' in request.args:
+		url = request.args['url']
+		for svc in SUPPORTED_SERVICES:
+			if svc['pattern'].match(url):
+				return handleRequest(request, svc['width'], svc['height'])
+		return (jsonify({'result': 'Not found: url does not match any supported patterns'}), 404)
+	return render_template('index.html',services=SUPPORTED_SERVICES)
 
 @app.route('/timeline/', methods=['GET'])
-@url_pattern_tester('^.+timeline3?.*$')
-@xml_is_not_supported
 def timelineRequest():
-	return handleRequest(request, 700, 500)
+	return redirect(url_for('index',**request.args),code=301)
 
 @app.route('/storymap/', methods=['GET'])
-@url_pattern_tester('^.+storymap.*$')
-@xml_is_not_supported
 def storymapRequest():
-	return handleRequest(request, 700, 700)
+	return redirect(url_for('index',**request.args),code=301)
 
 @app.route('/juxtapose/', methods=['GET'])
-@url_pattern_tester('^.+juxtapose.*$')
-@xml_is_not_supported
 def juxtaposeRequest():
-	return handleRequest(request, 700, 500)
+	return redirect(url_for('index',**request.args),code=301)
 
 @app.route('/scenevr/', methods=['GET'])
-@url_pattern_tester('^.+scenevr.*$')
-@xml_is_not_supported
 def sceneRequest():
-	return handleRequest(request, '100%', 600)
+	return redirect(url_for('index',**request.args),code=301)
 
 @app.route('/theydrawit/', methods=['GET'])
-@url_pattern_tester('^.+theydrawit.*$')
-@xml_is_not_supported
 def drawItRequest():
-	return handleRequest(request, 700, 500)
+	return redirect(url_for('index',**request.args),code=301)
 
 @app.route('/storyline/', methods=['GET'])
-@url_pattern_tester('^.+storyline.*$')
-@xml_is_not_supported
 def storylineRequest():
-	return handleRequest(request, 700, 500)
+	return redirect(url_for('index',**request.args),code=301)
 
 def handleRequest(request, default_width, default_height):
 
 	params = request.args
+
+	fmt = params.get('format','json')
+	if fmt not in ['json', 'xml']:
+		status501 = jsonify({'result': "Format [{}] not supported.".format(fmt)}), 501
+		return(status501)
+
 	url = params['url']
 	#Set some defaults for height and width.
 	#Check to see if maxwidth or maxheight are in the request
@@ -122,8 +105,12 @@ def handleRequest(request, default_width, default_height):
 	#Structure and send request with the JSON response
 	result = structureResponse(html, width, height)
 
-	resp = make_response(jsonify(result))
-	resp.headers['Content-type'] = 'application/json; charset=utf-8'
+	if fmt == 'xml':
+		resp = make_response(xmlize(result))
+		resp.headers['Content-type'] = 'text/xml; charset=utf-8'
+	else:
+		resp = make_response(jsonify(result))
+		resp.headers['Content-type'] = 'application/json; charset=utf-8'
 
 	return resp
 
@@ -173,6 +160,13 @@ def developIframe(url, width, height):
 def structureResponse(html, width, height):
 
 	responseJSON = {}
+
+	# convert strings to ints if they are
+	try: width = int(width)
+	except: pass
+
+	try: height = int(height)
+	except: pass
 
 	#For Knight Lab Tools, we will need a `rich` type.
 	#As well a provider information
