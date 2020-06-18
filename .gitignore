@@ -1,3 +1,6 @@
 *.pyc
 *.py~
 .DS_Store
+.env
+.envrc
+venv

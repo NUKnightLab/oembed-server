@@ -1,4 +1,4 @@
-domains: "oembed.knilab.com"
+domains: "stg-oembed.knightlab.com"
 gunicorn_reload: True # generally True on staging only
 
 ssl:

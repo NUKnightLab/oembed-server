@@ -1,9 +1,7 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request, make_response, render_template, url_for, redirect
 from functools import wraps
-from urlparse import urlparse, parse_qs, urlunparse
 import urllib
-from urllib import urlencode
 import math
 import re
 
@@ -119,10 +117,10 @@ def dims_from_url(url):
 	w = None
 	h = None
 
-	scheme, netloc, path, params, query, fragment = urlparse(url)
+	scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(url)
 	
 	#Take params from the Timeline URL
-	contentParams = parse_qs(query)
+	contentParams = urllib.parse.parse_qs(query)
 
 	#Find the height and width fields to set for iframe html
 	for key, value in contentParams.iteritems():
