@@ -76,7 +76,7 @@ def handleRequest(request, default_width, default_height):
 	maxwidth = params.get("maxwidth", None)
 	maxheight = params.get("maxheight", None)
 
-	decodedURL = urllib.unquote(url).decode('utf8')
+	decodedURL = urllib.parse.unquote(url)
 
 	url_width, url_height = dims_from_url(decodedURL)
 
@@ -123,7 +123,7 @@ def dims_from_url(url):
 	contentParams = urllib.parse.parse_qs(query)
 
 	#Find the height and width fields to set for iframe html
-	for key, value in contentParams.iteritems():
+	for key, value in contentParams.items():
 		if(key == 'width'):
 			w = value[0] if "%" in value[0] else int(value[0])
 		elif(key == 'height'):
