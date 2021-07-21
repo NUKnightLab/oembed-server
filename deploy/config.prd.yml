@@ -1,6 +1,3 @@
 domains: "oembed.knightlab.com"
-gunicorn_reload: False
+service_exec: "{{ virtualenv}}/bin/gunicorn -b :{{ service_port }} --workers 3 {{ wsgi_application }}"
 
-ssl:
-  ssl_certificate: "/etc/nginx/ssl/knightlab/knightlab-bundle.crt"
-  ssl_certificate_key: "/etc/nginx/ssl/knightlab/knightlab-com.key"

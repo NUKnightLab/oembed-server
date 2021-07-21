@@ -4,3 +4,5 @@
 .env
 .envrc
 venv
+.venv
+.python-version

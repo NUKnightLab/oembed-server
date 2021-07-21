@@ -1,6 +1,2 @@
 domains: "stg-oembed.knightlab.com"
-gunicorn_reload: True # generally True on staging only
-
-ssl:
-  ssl_certificate: "/etc/nginx/ssl/knilab/knilab-bundle.crt"
-  ssl_certificate_key: "/etc/nginx/ssl/knilab/knilab-com.key"
+service_exec: "{{ virtualenv}}/bin/gunicorn -b :{{ service_port }} --reload --workers 3 {{ wsgi_application }}"
