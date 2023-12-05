@@ -16,12 +16,12 @@ def xmlize(result):
 	return ET.tostring(root, encoding='utf8', method='xml')
 
 SUPPORTED_SERVICES = [
-	{'service': 'TimelineJS','homepage': 'https://timeline.knightlab.com', 'pattern': re.compile('^https://cdn.knightlab.com/libs/timeline3/.+$'), 'width': 700, 'height': 500},
-	{'service': 'StoryMapJS','homepage': 'https://storymap.knightlab.com', 'pattern': re.compile('^https://uploads.knightlab.com/storymapjs/.+$'), 'width': 700, 'height': 700},
-	{'service': 'JuxtaposeJS','homepage': 'https://juxtapose.knightlab.com', 'pattern': re.compile('^https://cdn.knightlab.com/libs/juxtapose/.+$'), 'width': 700, 'height': 500},
-	{'service': 'SceneVR','homepage': 'https://scene.knightlab.com', 'pattern': re.compile('^https://uploads.knightlab.com/scenevr/.+$'), 'width': '100%', 'height': 600},
-	{'service': 'StoryLineJS','homepage': 'https://storyline.knightlab.com', 'pattern': re.compile('^https://cdn.knightlab.com/libs/storyline/.+$'), 'width': 700, 'height': 500},
-	{'service': 'They Draw It','homepage': 'https://mucollective.co/theydrawit', 'pattern': re.compile('^https://theydrawit.mucollective.co/vis/.+$'), 'width': 700, 'height': 500},
+	{'service': 'TimelineJS','homepage': 'https://timeline.knightlab.com', 'pattern': re.compile('^https?://cdn.knightlab.com/libs/timeline3/.+$'), 'width': 700, 'height': 500},
+	{'service': 'StoryMapJS','homepage': 'https://storymap.knightlab.com', 'pattern': re.compile('^https?://uploads.knightlab.com/storymapjs/.+$'), 'width': 700, 'height': 700},
+	{'service': 'JuxtaposeJS','homepage': 'https://juxtapose.knightlab.com', 'pattern': re.compile('^https?://cdn.knightlab.com/libs/juxtapose/.+$'), 'width': 700, 'height': 500},
+	{'service': 'SceneVR','homepage': 'https://scene.knightlab.com', 'pattern': re.compile('^https?://uploads.knightlab.com/scenevr/.+$'), 'width': '100%', 'height': 600},
+	{'service': 'StoryLineJS','homepage': 'https://storyline.knightlab.com', 'pattern': re.compile('^https?://cdn.knightlab.com/libs/storyline/.+$'), 'width': 700, 'height': 500},
+	{'service': 'They Draw It','homepage': 'https://mucollective.co/theydrawit', 'pattern': re.compile('^https?://theydrawit.mucollective.co/vis/.+$'), 'width': 700, 'height': 500},
 ]
 
 # Format for the oEmbed requests:
@@ -31,10 +31,11 @@ def index():
 	# maybe get clever and have a single point?
 	if 'url' in request.args:
 		url = request.args['url']
+		app.logger.info(url)
 		for svc in SUPPORTED_SERVICES:
 			if svc['pattern'].match(url):
 				return handleRequest(request, svc['width'], svc['height'])
-		return (jsonify({'result': 'Not found: url does not match any supported patterns'}), 404)
+		return (jsonify({'result': f'Not found: url {url} does not match any supported patterns'}), 404)
 	return render_template('index.html',services=SUPPORTED_SERVICES)
 
 @app.route('/timeline/', methods=['GET'])
@@ -71,6 +72,8 @@ def handleRequest(request, default_width, default_height):
 		return(status501)
 
 	url = params['url']
+	url = re.sub('^http:','https:',url) # force https for better compatibility
+
 	#Set some defaults for height and width.
 	#Check to see if maxwidth or maxheight are in the request
 	maxwidth = params.get("maxwidth", None)
@@ -186,5 +189,3 @@ def structureResponse(html, width, height):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
